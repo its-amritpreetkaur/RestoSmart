@@ -1,0 +1,148 @@
+﻿@model RestoSmart.Models.MenuItem
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestoSmart | Edit Dish</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #F4F4F5;
+            font-family: sans-serif;
+        }
+
+        .admin-nav {
+            background-color: #000;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-top: 40px;
+        }
+
+        .btn-orange {
+            background-color: #FF6B00;
+            color: white;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-nav">
+        <h4 style="font-weight: 900; margin: 0; text-transform: uppercase;">Resto<span style="color: #FF6B00;">Smart</span> | Admin</h4>
+        <a href="/Home/ManageMenu" style="color: white; text-decoration: none; font-weight: 600;">← Cancel</a>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="form-card">
+                    <h4 style="font-weight: 800; margin-bottom: 20px;">Edit Dish</h4>
+                   
+                    <form action="/Home/EditDish" method="post">
+                        <input type="hidden" name="DishId" value="@Model.DishId" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Dish Name</label>
+                            <input type="text" class="form-control" name="Name" value="@Model.Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Category</label>
+                            <input asp-for="Category" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Price (₹)</label>
+                            <input type="number" class="form-control" name="Price" value="@Model.Price" required>
+                        </div>
+                        <h5 class="mt-4 fw-bold text-uppercase" style="letter-spacing: 1px;">Update Recipe</h5>
+                        <div id="recipe-area" class="p-3 bg-light rounded border">
+                            @foreach (var recipe in (List<RestoSmart.Models.Recipe>)ViewBag.ExistingRecipes)
+                            {
+                                <div class="row g-2 mb-2 recipe-row">
+                                    <div class="col-md-7">
+                                        <select name="ingredients" class="form-select">
+                                            @foreach (var inv in (List<RestoSmart.Models.Inventory>)ViewBag.Inventory) {
+                                                <option value="@inv.Id" selected="@(inv.Id == recipe.RawMaterialId)">
+                                                    @inv.Name
+                                                </option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" step="0.01" name="qtys" class="form-control" value="@recipe.QuantityRequired">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.row').remove()">✕</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <button type="button" class="btn btn-dark btn-sm mt-2" onclick="addNewRow()">+ Add Ingredient</button>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Image URL</label>
+                            <input type="text" class="form-control" id="imgInput" name="ImageUrl" value="@Model.ImageUrl">
+                            <img id="preview" src="@Model.ImageUrl" style="width: 100%; height: 200px; object-fit: cover; margin-top: 10px; border-radius: 8px;" onerror="this.src='https://placehold.co/400x200?text=No+Image'">
+                        </div>
+                        <button type="submit" class="btn btn-orange">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('imgInput').addEventListener('input', function() {
+            document.getElementById('preview').src = this.value;
+        });
+    </script>
+    <script>
+        function addNewRow() {
+            const container = document.getElementById('recipe-area');
+
+            const firstRow = document.querySelector('.recipe-row');
+
+            if (firstRow) {
+                const newRow = firstRow.cloneNode(true);
+                newRow.querySelector('select').selectedIndex = 0;
+                newRow.querySelector('input[type="number"]').value = '';
+                container.appendChild(newRow);
+            } else {
+                const freshRow = `
+                    <div class="row g-2 mb-2 recipe-row">
+                        <div class="col-md-7">
+                            <select name="ingredients" class="form-select">
+                                <option value="">-- Select Ingredient --</option>
+        @foreach (var inv in (List<RestoSmart.Models.Inventory>)ViewBag.Inventory)
+        {
+            <option value="@inv.Id">@inv.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" step="0.01" name="qtys" class="form-control" placeholder="Qty">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.row').remove()">✕</button>
+                        </div>
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', freshRow);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestoSmart | Welcome</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #FF6B00;
+            --bg-body: #F4F4F5;
+            --card-bg: #FFFFFF;
+            --text-dark: #000000;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .brand-logo {
+            font-weight: 900;
+            font-size: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .brand-accent { color: var(--primary); }
+
+        .subtitle {
+            color: #71717A;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .portal-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .portal-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 40px 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: var(--text-dark);
+            border: 2px solid transparent;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+            color: var(--text-dark);
+        }
+
+        .portal-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+
+        .portal-title {
+            font-weight: 900;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .portal-desc {
+            color: #71717A;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive grid sizing */
+        .row-custom {
+            max-width: 900px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section">
+        <div class="brand-logo">Resto<span class="brand-accent">Smart</span></div>
+        <div class="subtitle">Unified Restaurant ERP System</div>
+    </div>
+
+    <div class="portal-container">
+        <div class="row row-custom g-4">
+
+            <div class="col-12 col-md-6">
+                <a href="/Home/Index" class="portal-card">
+                    <div class="portal-icon">🍔</div>
+                    <div class="portal-title">Dine-In Customer</div>
+                    <div class="portal-desc">Browse the menu, add items to your cart, and place your order directly to the kitchen.</div>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <a href="/Home/Login" class="portal-card">
+                    <div class="portal-icon">🔒</div>
+                    <div class="portal-title">Employee Portal</div>
+                    <div class="portal-desc">Secure login for Kitchen Staff to view live orders and Admins to manage the menu.</div>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

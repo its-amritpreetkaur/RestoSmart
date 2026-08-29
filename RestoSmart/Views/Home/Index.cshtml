@@ -1,0 +1,480 @@
+﻿@model IEnumerable<RestoSmart.Models.MenuItem>
+@{
+   
+    var categories = Model?.Select(m => m.Category).Distinct().OrderBy(c => c).ToList() ?? new List<string>();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Dynamic Orange, Black, & White Palette */
+        :root {
+            --primary: #FF6B00; /* Vibrant Food-App Orange */
+            --primary-hover: #E55B00; /* Slightly darker for hover states */
+            --bg-body: #F4F4F5; /* Very subtle gray so the white cards pop */
+            --card-bg: #FFFFFF; /* Pure White */
+            --text-dark: #000000; /* Pure Black */
+            --text-muted: #52525B; /* Dark Gray for secondary text */
+            --border-light: #E4E4E7;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding-bottom: 100px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Clean Navbar */
+        .navbar-custom {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-light);
+            padding: 16px 20px;
+        }
+
+        .navbar-brand {
+            font-weight: 900;
+            color: var(--text-dark) !important;
+            letter-spacing: -0.5px;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+        }
+        /* A pop of orange in the brand name */
+        .brand-accent {
+            color: var(--primary);
+        }
+
+        .table-badge {
+            background: var(--text-dark);
+            color: var(--card-bg);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Category Filter Styling */
+        .category-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0 20px 0;
+            white-space: nowrap;
+            -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+
+            .category-container::-webkit-scrollbar {
+                display: none;
+            }
+        /* Hide scrollbar for Chrome */
+
+        .filter-pill {
+            background: var(--card-bg);
+            color: var(--text-dark);
+            border: 1px solid var(--border-light);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+            .filter-pill.active {
+                background: var(--primary);
+                color: white;
+                border-color: var(--primary);
+                box-shadow: 0 4px 10px rgba(255, 107, 0, 0.2);
+            }
+
+        /* Minimalist Menu Cards */
+        .menu-card {
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .menu-card:hover {
+                box-shadow: var(--shadow-md);
+                border-color: var(--primary); /* Subtle orange border on hover */
+            }
+
+        .menu-img {
+            height: 160px;
+            object-fit: cover;
+            width: 100%;
+            background-color: var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-body {
+            padding: 18px;
+        }
+
+        .dish-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+
+        .dish-price {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Sharp Action Buttons */
+        .btn-add {
+            background-color: var(--card-bg);
+            color: var(--text-dark);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 6px 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.15s ease-in-out;
+        }
+
+            .btn-add:hover {
+                border-color: var(--text-dark);
+            }
+
+            .btn-add:active {
+                transform: scale(0.95);
+            }
+
+        .btn-added {
+            background-color: var(--primary) !important;
+            color: white !important;
+            border-color: var(--primary) !important;
+        }
+
+        /* Floating Checkout Bar */
+        .floating-cart {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-light);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .total-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .total-amount {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        .btn-checkout {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 8px;
+            padding: 12px 32px;
+            font-weight: 800;
+            border: none;
+            transition: background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+            .btn-checkout:hover {
+                background-color: var(--primary-hover);
+                color: white;
+            }
+
+        /* Modern Modal Styling */
+        .modal-content {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            border-bottom: 2px solid var(--text-dark);
+            padding: 20px 24px;
+            background-color: var(--card-bg);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .modal-title {
+            font-weight: 900;
+            font-size: 1.25rem;
+            text-transform: uppercase;
+        }
+
+        .modal-body {
+            padding: 24px;
+            background-color: var(--card-bg);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-light);
+            padding: 20px 24px;
+            background-color: var(--bg-body);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        /* Receipt Item Styling */
+        .receipt-item {
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+            .receipt-item:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-custom sticky-top">
+        <div class="d-flex align-items-center bg-white border p-2 rounded-pill shadow-sm mb-4" style="width: fit-content;">
+            <span class="ps-3 fw-black text-uppercase small" style="letter-spacing: 1px;">Table</span>
+            <input type="number" id="manualTableId"
+                   class="form-control form-control-sm border-0 bg-transparent text-center fw-bold"
+                   style="width: 70px; font-size: 1.1rem; color: #FF6B00;"
+                   value="1" />
+        </div>
+
+       
+    </nav>
+
+    <div class="container mt-4 mb-5">
+        <h5 class="mb-2" style="font-weight: 900; font-size: 1.5rem; text-transform: uppercase;">Menu</h5>
+
+        <div class="category-container mb-3">
+            <div class="filter-pill active" onclick="filterMenu('All', this)">All</div>
+            @foreach (var cat in categories)
+            {
+                <div class="filter-pill" onclick="filterMenu('@cat', this)">@cat</div>
+            }
+        </div>
+
+        <div class="row" id="menu-grid">
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    <div class="col-12 col-md-6 col-lg-4 menu-item-wrapper" data-category="@item.Category">
+                        <div class="menu-card">
+                            <img src="@item.ImageUrl" class="menu-img" alt="@item.Name" onerror="this.src='https://placehold.co/400x200/E4E4E7/52525B?text=No+Image'">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="dish-title">@item.Name</div>
+                                    <div class="dish-price">₹@item.Price.ToString("0.00")</div>
+                                </div>
+                                <button class="btn btn-add add-to-cart-btn" data-id="@item.DishId" data-name="@item.Name" data-price="@item.Price">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    <div class="floating-cart">
+        <div class="cart-total">
+            <span class="total-label">Subtotal</span>
+            <span class="total-amount" id="cart-total-display">₹0.00</span>
+        </div>
+        <button class="btn btn-checkout" id="view-cart-btn" data-bs-toggle="modal" data-bs-target="#cartModal">
+            View Cart (0)
+        </button>
+    </div>
+
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Summary</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="cart-items-container">
+                    <p class="text-center text-muted my-4" style="font-weight: 600;">Your cart is empty.</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="total-label">Total Due</div>
+                        <div class="total-amount" id="modal-total-display">₹0.00</div>
+                    </div>
+                    <button type="button" class="btn btn-checkout" id="checkoutButton" onclick="submitOrder()">Place Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let cart = [];
+
+        function updateCartUI() {
+            // Calculate dynamic totals from the array to prevent math bugs
+            const currentTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+
+            // Update Text Elements
+            document.getElementById('cart-total-display').innerText = `₹${currentTotal.toFixed(2)}`;
+            document.getElementById('modal-total-display').innerText = `₹${currentTotal.toFixed(2)}`;
+            document.getElementById('view-cart-btn').innerText = `View Cart (${totalItems})`;
+
+            const container = document.getElementById('cart-items-container');
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted my-4" style="font-weight: 600;">Your cart is empty.</p>';
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="d-flex justify-content-between align-items-center receipt-item mb-2">
+                        <div>
+                            <div style="font-weight: 800; color: var(--text-dark);">${item.name}</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">₹${item.price.toFixed(2)} x ${item.qty}</div>
+                        </div>
+                        <div style="font-weight: 900; color: var(--text-dark);">₹${(item.price * item.qty).toFixed(2)}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+                function filterMenu(category, element) {
+            // 1. Update Active State of Pills
+            document.querySelectorAll('.filter-pill').forEach(pill => pill.classList.remove('active'));
+            element.classList.add('active');
+
+            // 2. Filter the Items
+            const items = document.querySelectorAll('.menu-item-wrapper');
+
+            items.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+
+                if (category === 'All' || itemCategory === category) {
+                    item.style.display = 'block';
+                    item.style.opacity = '0';
+                    setTimeout(() => { item.style.opacity = '1'; }, 10);
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const dishId = this.getAttribute('data-id');
+                const dishName = this.getAttribute('data-name');
+                const price = parseFloat(this.getAttribute('data-price'));
+
+                let existingItem = cart.find(item => item.id === dishId);
+                if (existingItem) {
+                    existingItem.qty += 1;
+                } else {
+                    cart.push({ id: dishId, name: dishName, price: price, qty: 1 });
+                }
+
+                // Sync the UI
+                updateCartUI();
+
+                const originalText = this.innerText;
+                this.innerText = 'Added!';
+                this.classList.add('btn-added');
+                setTimeout(() => {
+                    this.innerText = originalText;
+                    this.classList.remove('btn-added');
+                }, 600);
+            });
+        });
+
+              function switchTable() {
+                const input = document.getElementById('manualTableId');
+                const newTableId = input.value;
+
+                if (newTableId > 0) {
+                    window.location.href = '/Home/Index?tableId=' + newTableId;
+                } else {
+                    alert("Please enter a valid table number!");
+                }
+            }
+                     function submitOrder() {
+            const tableInput = document.getElementById('manualTableId');
+            const tableNum = tableInput ? tableInput.value : 1;
+
+            const checkoutBtn = document.getElementById('checkoutButton');
+            checkoutBtn.innerText = "Processing...";
+            checkoutBtn.disabled = true;
+
+            const orderData = {
+                cart: cart, 
+                tableId: parseInt(tableNum)
+            };
+
+            console.log("Sending Order Data:", orderData); // See what's being sent
+
+            fetch('/Home/Checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert("Order Successful!");
+                    location.reload();
+                } else {
+                    alert("Server Error: " + data.message);
+                    resetButton(checkoutBtn);
+                }
+            })
+            .catch(error => {
+                console.error("Fetch Error:", error);
+                alert("CRITICAL ERROR: Check the Visual Studio Output window.");
+                resetButton(checkoutBtn);
+            });
+        }
+
+        function resetButton(btn) {
+            btn.innerText = "Place Order";
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>

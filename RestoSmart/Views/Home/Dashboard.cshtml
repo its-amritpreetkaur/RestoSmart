@@ -1,0 +1,82 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Performance Dashboard</h2>
+        <a href="/Home/ManageMenu" class="btn btn-outline-primary">Manage Menu Items ➔</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">7-Day Revenue Trend</h5>
+                    <canvas id="revenueLineChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Top Selling Dishes</h5>
+                    <canvas id="dishesBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    fetch('/Home/GetSalesAnalytics')
+        .then(response => response.json())
+        .then(data => {
+            const dates = data.dailyRevenue.map(d => d.date);
+            const revenues = data.dailyRevenue.map(d => d.total);
+            const dishNames = data.topDishes.map(d => d.dishName);
+            const dishQtys = data.topDishes.map(d => d.quantitySold);
+
+            new Chart(document.getElementById('revenueLineChart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Daily Revenue (₹)',
+                        data: revenues,
+                        borderColor: '#FF6B00',
+                        backgroundColor: 'rgba(255, 107, 0, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            new Chart(document.getElementById('dishesBarChart'), {
+                type: 'bar', 
+                data: {
+                    labels: dishNames, 
+                    datasets: [{
+                        label: 'Units Sold',
+                        data: dishQtys, 
+                        backgroundColor: '#2c3e50', // Darker professional color
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', 
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false } 
+                    }
+                }
+            });
+        })
+        .catch(error => console.error("Error loading chart data:", error));
+</script>

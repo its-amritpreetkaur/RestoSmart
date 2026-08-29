@@ -1,0 +1,82 @@
+﻿@model List<RestoSmart.Models.OrderDashboardViewModel>
+
+<style>
+    .navbar {
+        background-color: #000000 !important;
+        border-bottom: 1px solid #333;
+    }
+
+    .navbar-brand, .nav-link {
+        color: #ffffff !important;
+        font-weight: 700;
+    }
+
+        .nav-link:hover {
+            color: #FF6B00 !important;
+        }
+
+    .ticket-card {
+        border-top: 5px solid #FF6B00 !important;
+        transition: transform 0.2s;
+    }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+        }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 style="font-weight: 900; letter-spacing: -1px; margin-bottom: 0;">ACTIVE KITCHEN TICKETS</h2>
+            <p class="text-muted small fw-bold mt-1">REAL-TIME ORDER QUEUE</p>
+        </div>
+       
+    </div>
+
+    <div class="row g-4">
+        @foreach (var order in Model)
+        {
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 ticket-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h5 class="fw-bold mb-0">Table @order.TableId</h5>
+                                <small class="text-muted fw-bold">@order.Date.ToString("hh:mm tt")</small>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">#@order.SH_BillID</small>
+                            </div>
+                        </div>
+                        <hr class="my-2" />
+                        <ul class="list-unstyled">
+                            @foreach (var item in order.Items)
+                            {
+                                <li class="d-flex justify-content-between mb-2">
+                                    <span style="font-weight: 600;">@item.DishName</span>
+                                    <span class="badge bg-light text-dark border">x @item.Qty</span>
+                                </li>
+                            }
+                        </ul>
+                        <button class="btn btn-dark w-100 mt-3 fw-bold" onclick="completeOrder(@order.SH_BillID)">
+                            MARK AS PREPARED
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function completeOrder(id) {
+        if(confirm("Mark Order #" + id + " as done?")) {
+            fetch('/Home/MarkDone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(id)
+            }).then(() => location.reload());
+        }
+    }
+</script>
